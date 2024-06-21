@@ -59,6 +59,16 @@
 
 
 
+- IDEA 插件
+
+  `MyBatis-X`
+
+  `auto filling`
+
+  
+
+
+
 ## 背景介绍
 
 - 需求分析
@@ -258,7 +268,9 @@
 
   `controller ` (接收请求 封装接口给前端调用), `service` (业务逻辑), `mapper` (数据库操作)
   
-  `model` (数据库模型)、`utils`(工具类,) 配置信息, 全局变量常量
+  `model.domain` (实体类对象), 全局变量常量, `contant` (枚举常量)
+
+  `utils`(工具类), 配置信息, 
 
 - Java project
 
@@ -272,7 +284,7 @@
   
   ```bash
   cd src/main/java/com/time1043/backendusercenter/
-  mkdir controller service mapper model utils
+  mkdir controller service mapper model contant utils
   
   # mybatis-x
   # localhost:8080/api/index.html
@@ -380,15 +392,132 @@
 
 ## 登录注册 后端
 
+- 分层架构
+
+  数据库访问层：`MyBatis-X`
+
+  业务逻辑层：
 
 
 
 
 
+### 数据库访问层 (mapper)
+
+- MyBatis-X ...
+
+- 测试 UserService
+
+  `@SpringBootTest`; `@Resource`, `@Test`
+
+  src\main\java\com\time1043\backendusercenter\service\UserService.java
+
+  src\test\java\com\time1043\backendusercenter\service\UserServiceTest.java
+
+  
 
 
 
+### 业务逻辑层 (service)
 
+- 注册逻辑
+
+  用户在前端输入**账号和密码**、以及校验码 (todo)
+
+  **校验**用户的账户、密码、检验密码是否符合要求  (非空检验、账户不小于4位、密码不小于8位、账户不能重复、账户不含特殊字符、密码和校验密码相同)
+
+  对密码进行**加密** (千万不要明文存储数据库)
+
+  向**数据库**插入用户数据
+
+- Q：为什么前端校验了，后端还要校验？
+
+  前端只能拦住正常用户，拦不住攻击，用户可以绕过前端向后端接口发请求
+
+  
+
+---
+
+- 单机登录 (后续改造 redis分布式 第三方登录)
+
+  登录接口
+
+  接收参数：用户账户、密码
+
+  请求类型：POST
+
+  请求体：JSON
+
+  返回值：用户信息 (脱敏)
+
+- 登录逻辑
+
+  检验用户账户和密码是否**合法** (非空、账户不小于4、密码不小于8、账户不含特殊字符)
+
+  校验**密码**是否输入正确，要和数据库密码密文对比
+
+  记录用户的**登录态** (session)，存到服务器上 (后端springBoot封装的服务器 tomcat)
+
+  返回用户信息 (**脱敏**)
+
+- Q：如何知道是哪个用户登录？
+
+  session, cookie
+
+  
+
+---
+
+- 代码实现  [apache-commons 校验 (需要导入依赖)](https://mvnrepository.com/artifact/org.apache.commons/commons-lang3)
+
+  src\main\java\com\time1043\backendusercenter\service\UserService.java
+
+  src\main\java\com\time1043\backendusercenter\service\impl\UserServiceImpl.java
+
+  src\test\java\com\time1043\backendusercenter\service\UserServiceTest.java
+
+  
+
+
+
+### 接口访问层 (controller)
+
+- CRUD接口
+
+  src\main\java\com\time1043\backendusercenter\controller\UserController.java 
+
+  ADMIN_ROLE, USER_LOGIN_STATE
+
+- 定义请求的数据结构 (前端JSON -> 请求对象)
+
+- IDEA自带的http测试工具
+
+  ```
+  ###
+  POST http://localhost:8080/user/login
+  Content-Type: application/json
+  
+  {
+    "userAccount": "yingzhu2",
+    "userPassword": "12345678"
+  }
+  
+  <> 2024-03-25T123653.200.json
+  <> 2024-03-25T123057.200.json
+  
+  ```
+
+  
+
+
+
+### 数据模型 (model)
+
+- 定义请求的数据结构 (前端JSON -> 请求对象)
+
+  src\main\java\com\time1043\backendusercenter\model\domain\request\UserLoginRequest.java
+
+  src\main\java\com\time1043\backendusercenter\model\domain\request\UserRegisterRequest.java
 
 
 
